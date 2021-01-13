@@ -39,4 +39,31 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate };
+/* Formatting companies search values for a query */
+
+function sqlFormatSearchQuery (dataToSearch, jsToSql) {
+  
+  const keys = Object.keys(dataToSearch);
+  if ((keys.length === 0) ||
+      ( dataToSearch[minEmployees] > dataToSearch[maxEmployees])) {
+        throw new BadRequestError("Invalid search!");
+  }
+
+  for(let i = 0; i < keys.length; i++) {
+    
+   key[i].startsWith("min")
+
+    let params = `"${jsToSql[keys[i]] || keys[i]}"=$${idx + 1}`
+    keys[i] = params;
+
+  }
+
+}
+
+//helper funcition
+
+
+module.exports = { 
+                   sqlForPartialUpdate,
+                   sqlFormatSearchQuery 
+                  };
