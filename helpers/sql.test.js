@@ -51,16 +51,6 @@ describe('sqlForSearch', function() {
 			maxEmployees: 900
 		};
 
-		goodData3 = {
-			name: 'invalidName',
-			minEmployees: 0,
-			maxEmployees: 1000
-		};
-
-		goodjsToSql = {
-			numEmployees: 'num_employees'
-		};
-
 		badData = {
 			name: 'gal',
 			minEmployees: 900,
@@ -68,23 +58,23 @@ describe('sqlForSearch', function() {
 		};
 	});
 
-	test('finds num_employees match without names match', function() {
-		expect(sqlFormatSearchQuery(goodData3, goodjsToSql)).toEqual({
-			setConditions: '"num_employees">=$2 AND "num_employees"<=$3',
-			values: [ 800, 900 ]
+	test('structures query for all search constraints passed', function() {
+		expect(sqlFormatSearchQuery(goodData)).toEqual({
+			"setConditions": `"name" ILIKE '%' || $1 || '%' AND "num_employees">$2 AND "num_employees"<$3`,
+			"values": [`gal`, 800, 900]
 		});
 	});
 
 	test('works with no min num_employees', function() {
-		expect(sqlFormatSearchQuery(goodData2, goodjsToSql)).toEqual({
-			setConditions: '"name"=$1 AND "num_employees"<=$3',
-			values: [ 'gal', 900 ]
+		expect(sqlFormatSearchQuery(goodData2)).toEqual({
+			"setConditions": `"name" ILIKE '%' || $1 || '%' AND "num_employees"<$2`,
+			values: ["gal", 900]
 		});
 	});
 
 	test('should response 400 if min greater than max', function() {
 		try {
-			sqlFormatSearchQuery(badData, goodjsToSql);
+			sqlFormatSearchQuery(badData);
 			fail();
 		} catch (err) {
 			expect(err instanceof BadRequestError).toBeTruthy();

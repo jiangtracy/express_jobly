@@ -41,23 +41,31 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 
 /* Formatting companies search values for a query */
 
-function sqlFormatSearchQuery (dataToSearch, jsToSql) {
+function sqlFormatSearchQuery (dataToSearch) {
   
   const keys = Object.keys(dataToSearch);
   if ((keys.length === 0) ||
-      ( dataToSearch[minEmployees] > dataToSearch[maxEmployees])) {
+      (dataToSearch.minEmployees > dataToSearch.maxEmployees)) {
         throw new BadRequestError("Invalid search!");
   }
 
+  let conditions = [];
   for(let i = 0; i < keys.length; i++) {
-    
-   key[i].startsWith("min")
-
-    let params = `"${jsToSql[keys[i]] || keys[i]}"=$${idx + 1}`
-    keys[i] = params;
+  
+    if (keys[i].startsWith("name")) {
+      conditions.push(`"name" ILIKE '%' || $${i + 1} || '%'`);
+    } else if (keys[i].startsWith("min")) {
+      conditions.push(`"num_employees">$${i + 1}`);
+    } else if (keys[i].startsWith("max")) {
+      conditions.push(`"num_employees"<$${i + 1}`);
+    }
 
   }
-
+  
+  return {
+    setConditions: conditions.join(' AND '),
+    values: Object.values(dataToSearch)
+  }
 }
 
 //helper funcition
