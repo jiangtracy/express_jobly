@@ -99,6 +99,7 @@ describe('ensureIsAdmin', function() {
 		const req = {};
 		const res = {};
 		const next = function(err) {
+      console.log("err", err);
 			expect(err instanceof UnauthorizedError).toBeTruthy();
 		};
 		ensureIsAdmin(req, res, next);

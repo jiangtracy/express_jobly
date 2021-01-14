@@ -175,7 +175,7 @@ describe("GET /companies", function () {
     expect(resp.body).toEqual({
       "error": {
         "message": [
-          "instance is not allowed to have the additional property \"invalidParams\""
+          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
         ],
         "status": 400
       }

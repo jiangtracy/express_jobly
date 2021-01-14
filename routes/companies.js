@@ -49,23 +49,24 @@ router.post('/', ensureIsAdmin, async function(req, res, next) {
  */
 
 router.get('/', async function(req, res, next) {
-	const data = req.query;
+	
+	const q = {...req.query};
 
-	if (data.minEmployees) {
-		data.minEmployees = Number(data.minEmployees);
+	if (q.minEmployees) {
+		q.minEmployees = Number(q.minEmployees);
 	}
 
-	if (data.maxEmployees) {
-		data.maxEmployees = Number(data.maxEmployees);
+	if (q.maxEmployees) {
+		q.maxEmployees = Number(q.maxEmployees);
 	}
 
-	const validator = jsonschema.validate(data, companyFilterSchema);
+	const validator = jsonschema.validate(q, companyFilterSchema);
 	if (!validator.valid) {
 		const errs = validator.errors.map( e => e.stack);
 		throw new BadRequestError(errs);
 	}
 
-	const companies = await Company.findAll(data);
+	const companies = await Company.findAll(q);
 
 	return res.json({ companies });
 });
