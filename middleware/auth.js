@@ -21,7 +21,6 @@ function authenticateJWT(req, res, next) {
     if (authHeader) {
       const token = authHeader.replace(/^[Bb]earer /, "").trim();
       res.locals.user = jwt.verify(token, SECRET_KEY);
-      console.log("authenticate", res.locals.user);
     }
     return next();
   } catch (err) {
@@ -64,12 +63,10 @@ function ensureIsAdmin(req, res, next) {
 
 function ensureCorrectUserOrAdmin(req, res, next) {
   try {
-    if (req.params.username !== res.locals.user.username ||
-      !res.locals.user.isAdmin) {
+    if ((req.params.username !== res.locals.user.username) && (!res.locals.user.isAdmin)) {
 
       throw new UnauthorizedError();
     }
-
     return next();
   } catch (err) {
     return next(new UnauthorizedError());

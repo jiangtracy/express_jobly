@@ -205,9 +205,10 @@ describe("GET /users/:username", function () {
   });
 
   test("works for admin", async function () {
+    console.log("made it to works for admin");
     const resp = await request(app)
-        .get("users/u1")
-        .set("authorization", `Bearer ${adminToken}`)
+    .get("/users/u1")
+    .set("authorization", `Bearer ${adminToken}`)
     expect(resp.body).toEqual({
       user: {
         username: "u1",
@@ -263,11 +264,12 @@ describe("PATCH /users/:username", () => {
 
   test("works for admin", async function () {
     const resp = await request(app)
-        .patch("users/u1")
+        .patch("/users/u1")
         .send({
           firstName: "New",
         })
         .set("authorization", `Bearer ${adminToken}`)
+    console.log("resp in patch", resp.body);
     expect(resp.body).toEqual({
       user: {
         username: "u1",
@@ -304,7 +306,7 @@ describe("PATCH /users/:username", () => {
         .send({
           firstName: "Nope",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -372,7 +374,7 @@ describe("DELETE /users/:username", function () {
   test("not found if user missing", async function () {
     const resp = await request(app)
         .delete(`/users/nope`)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 });
