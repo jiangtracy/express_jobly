@@ -51,7 +51,6 @@ class Company {
   * and array of values
   * 
   * takes: data object of values to search
-  * at least one of these keys needs to be passed in
   * Both minEmployees and maxEmployees are exclusive
   * dataToSearch: {
   *    "name": "companyName",
@@ -105,10 +104,7 @@ class Company {
 
     const { whereClauseValues, values } = Company._sqlFormatSearchQuery(data);
 
-    let whereClause = "";
-    if(values.length !== 0 ) {
-      whereClause = `WHERE ${ whereClauseValues }`;
-    }
+    const whereClause = values.length !== 0 ? `WHERE ${ whereClauseValues }` : '';
 
     const companiesRes = await db.query(
           `SELECT handle,

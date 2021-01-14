@@ -136,19 +136,6 @@ describe("GET /companies", function () {
       }]
     });
   })
-
-  test("fails: passing in invalid search params: name", async function () {
-    
-    const resp = await request(app).get("/companies?invalidParams=notAllowed");
-    expect(resp.body).toEqual({
-      "error": {
-        "message": [
-          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
-        ],
-        "status": 400
-      }
-    });
-  })
   
   test("fails: passing in invalid search params: min greater than max", async function () {
     const resp = await request(app).get("/companies?name=c1&minEmployees=4&maxEmployees=2");
@@ -160,13 +147,13 @@ describe("GET /companies", function () {
     });
   })
 
-  test("fails: passing in invalid search params", async function () {
+  test("fails: passing in invalid search params: extra params", async function () {
     
     const resp = await request(app).get("/companies?invalidParams=notAllowed");
     expect(resp.body).toEqual({
       "error": {
         "message": [
-          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
+          "instance is not allowed to have the additional property \"invalidParams\""
         ],
         "status": 400
       }
@@ -186,26 +173,50 @@ describe("GET /companies", function () {
     });
   })
 
-  test("fails: passing in invalid search params: minEmployees", async function () {
+  test("fails: passing in invalid search params: minEmployees no value", async function () {
     
     const resp = await request(app).get("/companies?minEmployees=");
     expect(resp.body).toEqual({
       "error": {
         "message": [
-          "instance.minEmployees does not meet minimum length of 1"
+          "instance.minEmployees is not of a type(s) integer"
         ],
         "status": 400
       }
     });
   })
 
-  test("fails: passing in invalid search params: maxEmployees", async function () {
+  test("fails: passing in invalid search params: maxEmployees no value", async function () {
     
     const resp = await request(app).get("/companies?maxEmployees=");
     expect(resp.body).toEqual({
       "error": {
         "message": [
-          "instance.maxEmployees does not meet minimum length of 1"
+          "instance.maxEmployees is not of a type(s) integer"
+        ],
+        "status": 400
+      }
+    });
+  })
+  test("fails: passing in invalid search params: minEmployees non integer", async function () {
+    
+    const resp = await request(app).get("/companies?minEmployees=notanumber");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance.minEmployees is not of a type(s) integer"
+        ],
+        "status": 400
+      }
+    });
+  })
+  test("fails: passing in invalid search params: maxEmployees non integer", async function () {
+    
+    const resp = await request(app).get("/companies?maxEmployees=notanumber");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance.maxEmployees is not of a type(s) integer"
         ],
         "status": 400
       }

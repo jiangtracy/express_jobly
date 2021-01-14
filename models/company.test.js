@@ -56,6 +56,50 @@ describe("create", function () {
   });
 });
 
+/************************************** _sqlFormatSearchQuery */
+
+describe('sqlForSearch', function() {
+  const goodData = {
+    name: 'gal',
+    minEmployees: 800,
+    maxEmployees: 900
+  };
+
+  const goodData2 = {
+    name: 'gal',
+    maxEmployees: 900
+  };
+
+  const badData = {
+    name: 'gal',
+    minEmployees: 900,
+    maxEmployees: 800
+  };
+
+	test('structures query for all search constraints passed', function() {
+		expect(Company._sqlFormatSearchQuery(goodData)).toEqual({
+			whereClauseValues: `name ILIKE '%' || $1 || '%' AND num_employees > $2 AND num_employees < $3`,
+			values: [`gal`, 800, 900]
+		});
+	});
+
+	test('works with no min num_employees', function() {
+		expect(Company._sqlFormatSearchQuery(goodData2)).toEqual({
+			whereClauseValues: `name ILIKE '%' || $1 || '%' AND num_employees < $2`,
+			values: ["gal", 900]
+		});
+	});
+
+	test('should response 400 if min greater than max', function() {
+		try {
+			Company._sqlFormatSearchQuery(badData);
+			fail();
+		} catch (err) {
+			expect(err instanceof BadRequestError).toBeTruthy();
+		}
+	});
+});
+
 /************************************** findAll */
 
 describe("findAll", function () {
@@ -87,10 +131,9 @@ describe("findAll", function () {
   });
 });
 
-/************************************** filterAll */
-describe("filterAll", function () {
+describe("findAll with filter", function () {
   test("works: with filter", async function () {
-    let companies = await Company.filterAll({
+    let companies = await Company.findAll({
       name:"c",
       minEmployees: 2,
       maxEmployees: 4
