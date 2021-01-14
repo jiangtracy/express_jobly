@@ -11,6 +11,7 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  adminToken,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -29,15 +30,26 @@ describe("POST /companies", function () {
     numEmployees: 10,
   };
 
-  test("ok for users", async function () {
+  test("ok for admins", async function () {
     const resp = await request(app)
         .post("/companies")
         .send(newCompany)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       company: newCompany,
     });
+  });
+
+  test("bad request if user is not an admin", async function () {
+    const resp = await request(app)
+        .post("/companies")
+        .send({
+          ...newCompany,
+          logoUrl: "not-a-url",
+        })
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("bad request with missing data", async function () {
@@ -47,7 +59,7 @@ describe("POST /companies", function () {
           handle: "new",
           numEmployees: 10,
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 
@@ -58,10 +70,12 @@ describe("POST /companies", function () {
           ...newCompany,
           logoUrl: "not-a-url",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
+
+ 
 
 /************************************** GET /companies */
 
@@ -153,7 +167,7 @@ describe("GET /companies", function () {
     expect(resp.body).toEqual({
       "error": {
         "message": [
-          "instance is not allowed to have the additional property \"invalidParams\""
+          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
         ],
         "status": 400
       }
