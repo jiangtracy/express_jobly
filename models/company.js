@@ -4,6 +4,7 @@ const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate, sqlFormatSearchQuery } = require("../helpers/sql");
 
+
 /** Related functions for companies. */
 
 class Company {
@@ -44,14 +45,71 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
-   *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-   * */
+  /* Formatting companies search values for a query 
+  * Change data object passed into new object 
+  * of sql condition variables ("num_employees"<$1, ...) 
+  * and array of values
+  * 
+  * takes: data object of values to search
+  * at least one of these keys needs to be passed in
+  * Both minEmployees and maxEmployees are exclusive
+  * dataToSearch: {
+  *    "name": "companyName",
+  *    "minEmployees": 2,
+  *    "maxEmployees": 10,
+  * }
+  * 
+  * returns:
+  * {
+      conditions: string => `"name" ILIKE '%' || $1 || '%' AND "num_employees">$2 AND "num_employees"<$3`
+      values: array of values from data object passed
+    }
+  */
+  
+  static _sqlFormatSearchQuery(dataToSearch) {
+   
+    if (dataToSearch.minEmployees > dataToSearch.maxEmployees) {
+      throw new BadRequestError('Invalid search!');
+    }
 
-  static async findAll(data) {
-    let whereClause = data ? 'WHERE' : '';
-    const { setConditions, values } = sqlFormatSearchQuery(data)
+    let searchValues = [];
+    let whereClauseValues = [];
+
+      if (dataToSearch.name) {
+        whereClauseValues.push(`name ILIKE '%' || $${whereClauseValues.length + 1} || '%'`);
+        searchValues.push(dataToSearch.name);
+      }
+
+      if (dataToSearch.minEmployees) {
+        whereClauseValues.push(`num_employees > $${whereClauseValues.length + 1}`);
+        searchValues.push(dataToSearch.minEmployees);
+      } 
+      
+      if (dataToSearch.maxEmployees) {
+        whereClauseValues.push(`num_employees < $${whereClauseValues.length + 1}`);
+        searchValues.push(dataToSearch.maxEmployees);
+      }
+    
+    return {
+      whereClauseValues: whereClauseValues.join(' AND '),
+      values: searchValues,
+    };
+  }
+
+  /** Find all companies.
+   * Filter options: name, minEmployees, maxEmployees
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   */
+
+  static async findAll(data={}) {
+
+    const { whereClauseValues, values } = Company._sqlFormatSearchQuery(data);
+
+    let whereClause = "";
+    if(values.length !== 0 ) {
+      whereClause = `WHERE ${ whereClauseValues }`;
+    }
+
     const companiesRes = await db.query(
           `SELECT handle,
                   name,
@@ -59,8 +117,9 @@ class Company {
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
            FROM companies
-           ${whereClause} ${setConditions}
-           ORDER BY name`, [...values]);
+           ${ whereClause }
+           ORDER BY name`, values);
+
     return companiesRes.rows;
   }
 
@@ -71,6 +130,7 @@ class Company {
    *
    * Throws NotFoundError if not found.
    **/
+
 
   static async get(handle) {
     const companyRes = await db.query(

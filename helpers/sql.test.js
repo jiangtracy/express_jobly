@@ -38,6 +38,7 @@ describe('sqlForPartialUpdate', function() {
 
 
 /* Tests for sqlFormatSearchQuery */
+
 describe('sqlForSearch', function() {
 	beforeAll(function() {
 		goodData = {
@@ -55,19 +56,19 @@ describe('sqlForSearch', function() {
 			name: 'gal',
 			minEmployees: 900,
 			maxEmployees: 800
-		};
+    };
 	});
 
 	test('structures query for all search constraints passed', function() {
 		expect(sqlFormatSearchQuery(goodData)).toEqual({
-			"setConditions": `"name" ILIKE '%' || $1 || '%' AND "num_employees">$2 AND "num_employees"<$3`,
+			"conditions": `"name" ILIKE '%' || $1 || '%' AND "num_employees">$2 AND "num_employees"<$3`,
 			"values": [`gal`, 800, 900]
 		});
 	});
 
 	test('works with no min num_employees', function() {
 		expect(sqlFormatSearchQuery(goodData2)).toEqual({
-			"setConditions": `"name" ILIKE '%' || $1 || '%' AND "num_employees"<$2`,
+			"conditions": `"name" ILIKE '%' || $1 || '%' AND "num_employees"<$2`,
 			values: ["gal", 900]
 		});
 	});

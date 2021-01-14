@@ -106,6 +106,111 @@ describe("GET /companies", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(500);
   });
+
+  
+  test("pass: passing in all valid search params", async function () {
+    
+    const resp = await request(app).get("/companies?name=2&minEmployees=1&maxEmployees=3");
+    expect(resp.body).toEqual({
+      companies: [{
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      }]
+    });
+  })
+  
+
+  test("pass: passing in some valid search params", async function () {
+    
+    const resp = await request(app).get("/companies?name=c&minEmployees=2");
+    expect(resp.body).toEqual({
+      companies: [{
+          handle: "c3",
+          name: "C3",
+          description: "Desc3",
+          numEmployees: 3,
+          logoUrl: "http://c3.img",
+      }]
+    });
+  })
+
+  test("fails: passing in invalid search params: name", async function () {
+    
+    const resp = await request(app).get("/companies?invalidParams=notAllowed");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
+        ],
+        "status": 400
+      }
+    });
+  })
+  
+  test("fails: passing in invalid search params: min greater than max", async function () {
+    const resp = await request(app).get("/companies?name=c1&minEmployees=4&maxEmployees=2");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": "Invalid search!",
+        "status": 400,
+      }
+    });
+  })
+
+  test("fails: passing in invalid search params", async function () {
+    
+    const resp = await request(app).get("/companies?invalidParams=notAllowed");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
+        ],
+        "status": 400
+      }
+    });
+  })
+
+  test("fails: passing in invalid search params: name", async function () {
+    
+    const resp = await request(app).get("/companies?name=");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance.name does not meet minimum length of 1"
+        ],
+        "status": 400
+      }
+    });
+  })
+
+  test("fails: passing in invalid search params: minEmployees", async function () {
+    
+    const resp = await request(app).get("/companies?minEmployees=");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance.minEmployees does not meet minimum length of 1"
+        ],
+        "status": 400
+      }
+    });
+  })
+
+  test("fails: passing in invalid search params: maxEmployees", async function () {
+    
+    const resp = await request(app).get("/companies?maxEmployees=");
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance.maxEmployees does not meet minimum length of 1"
+        ],
+        "status": 400
+      }
+    });
+  })
 });
 
 /************************************** GET /companies/:handle */
