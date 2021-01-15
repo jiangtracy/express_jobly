@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
+let j1Id;
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
@@ -38,7 +39,10 @@ async function commonBeforeAll() {
         VALUES ('j1', 10, .01, 'c1'),
                ('j2', 12, .02, 'c2'),
                ('j3', 13, .03, 'c3')`);
+  
+
 }
+
 
 async function commonBeforeEach() {
   await db.query("BEGIN");
