@@ -59,10 +59,9 @@ router.get('/', async function(req, res, next) {
 	if (q.maxEmployees) {
 		q.maxEmployees = Number(q.maxEmployees);
 	}
-	debugger;
+
 	const validator = jsonschema.validate(q, companyFilterSchema);
 	if (!validator.valid) {
-		debugger;
 		const errs = validator.errors.map( e => e.stack);
 		throw new BadRequestError(errs);
 	}

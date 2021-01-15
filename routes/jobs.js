@@ -38,18 +38,27 @@ router.post('/', ensureIsAdmin, async function(req, res, next) {
 
 /** GET /  =>
  *   { jobs: [ { id, title, salary, equity, companyHandle }, ...] }
- *
+ * 
+ * Optional filters provided in query string:
+ * - title
+ * - salary
+ * - hasEquity: Boolean if true only jobs with equity > 0
  *
  * Authorization required: none
  */
 
 router.get('/', async function(req, res, next) {
-	// const validator = jsonschema.validate(q, jobFilterSchema);
-	// if (!validator.valid) {
-	// 	debugger;
-	// 	const errs = validator.errors.map( e => e.stack);
-	// 	throw new BadRequestError(errs);
-	// }
+  const q = {...req.query};
+
+	if (q.salary) {
+		q.salary = Number(q.salary);
+  }
+  
+	const validator = jsonschema.validate(q, jobFilterSchema);
+	if (!validator.valid) {
+		const errs = validator.errors.map( e => e.stack);
+		throw new BadRequestError(errs);
+	}
 
 	const jobs = await Job.findAll();
 
