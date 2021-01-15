@@ -44,14 +44,14 @@ router.post('/', ensureIsAdmin, async function(req, res, next) {
  */
 
 router.get('/', async function(req, res, next) {
-	const validator = jsonschema.validate(q, jobFilterSchema);
-	if (!validator.valid) {
-		debugger;
-		const errs = validator.errors.map( e => e.stack);
-		throw new BadRequestError(errs);
-	}
+	// const validator = jsonschema.validate(q, jobFilterSchema);
+	// if (!validator.valid) {
+	// 	debugger;
+	// 	const errs = validator.errors.map( e => e.stack);
+	// 	throw new BadRequestError(errs);
+	// }
 
-	const jobs = await Job.findAll(q);
+	const jobs = await Job.findAll();
 
 	return res.json({ jobs });
 });
