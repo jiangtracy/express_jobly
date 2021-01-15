@@ -171,11 +171,11 @@ describe("GET /companies", function () {
 
   test("fails: passing in invalid search params: extra params", async function () {
     
-    const resp = await request(app).get("/companies?invalidParams=notAllowed");
+    const resp = await request(app).get("/companies?invalidParams=taco");
     expect(resp.body).toEqual({
       "error": {
         "message": [
-          "instance additionalProperty \"invalidParams\" exists in instance when not allowed"
+          "instance is not allowed to have the additional property \"invalidParams\""
         ],
         "status": 400
       }
