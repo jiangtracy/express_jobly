@@ -10,7 +10,7 @@ const { ensureIsAdmin } = require('../middleware/auth');
 const Job = require('../models/job');
 
 const jobNewSchema = require('../schemas/jobNew.json');
-// const jobFilterSchema = require('../schemas/jobFilter.json');
+const jobFilterSchema = require('../schemas/jobFilter.json');
 const jobUpdateSchema = require('../schemas/jobUpdate.json');
 const e = require('express');
 
